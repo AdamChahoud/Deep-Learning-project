@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+Datasets/
+plots/
+cifar-10-batches-py/
+data/
