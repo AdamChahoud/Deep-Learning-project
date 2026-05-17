@@ -63,3 +63,27 @@ def make_labeled_indices(labels, candidate_indices, num_labeled, seed, num_class
     rng.shuffle(chosen)
 
     return chosen
+
+def build_loaders(cfg):
+    root = cfg["data"]["root"]
+    seed = cfg["seed"]
+    val_size = cfg["data"]["val_size"]
+    num_labeled = cfg["data"]["num_labeled"]
+    num_classes = cfg["data"]["num_classes"]
+    batch_size = cfg["training"]["batch_size"]
+    num_workers = cfg["training"]["num_workers"]
+
+    base_train = datasets.CIFAR10(root=root, train=True, download=True)
+    labels = np.array(base_train.targets)
+    train_idx, val_idx = stratified_split_indices(labels, val_size, seed)
+    labeled_idx = make_labeled_indices(labels, train_idx, num_labeled, seed, num_classes)
+
+    train_ds = datasets.CIFAR10(root=root, train=True, download=False, transform=train_transform())
+    val_ds = datasets.CIFAR10(root=root, train=True, download=False, transform=val_transform())
+    test_ds = datasets.CIFAR10(root=root, train=False, download=True, transform=val_transform())
+
+    train_loader = DataLoader(Subset(train_ds, labeled_idx), batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    val_loader = DataLoader(Subset(val_ds, val_idx), batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+
+    return train_loader, val_loader, test_loader
