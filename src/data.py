@@ -30,6 +30,15 @@ def val_transform():
         transforms.Normalize(CIFAR10_MEAN, CIFAR10_STD),
     ])
 
+def strong_transform():
+    return transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandAugment(num_ops=2, magnitude=9),
+        transforms.ToTensor(),
+        transforms.Normalize(CIFAR10_MEAN, CIFAR10_STD)
+    ])
+
 def stratified_split_indices(labels, test_size, seed):
     labels = np.asarray(labels)
     splitter = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=seed)
@@ -37,6 +46,22 @@ def stratified_split_indices(labels, test_size, seed):
     train_idx, test_idx = next(splitter.split(all_idx, labels))
 
     return train_idx, test_idx
+
+class PairedUnlabeledDataset(torch.utils.data.Dataset):
+    def __init__(self, dataset_a, dataset_b, indices):
+        self.dataset_a = dataset_a
+        self.dataset_b = dataset_b
+        self.indices = np.asarray(indices)
+
+    def __len__(self):
+        return len(self.indices)
+        
+    def __getitem__(self, i):
+        idx = self.indices[i]
+        x_a, _ = self.dataset_a[idx]
+        x_b, _ = self.dataset_b[idx]
+        return x_a, x_b
+        
 
 #### Gives balanced amongs classes random num_labeled indices ####
 def make_labeled_indices(labels, candidate_indices, num_labeled, seed, num_classes):
@@ -87,3 +112,42 @@ def build_loaders(cfg):
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return train_loader, val_loader, test_loader
+
+def build_ssl_loaders(cfg, method):
+    root = cfg["data"]["root"]
+    seed = cfg["seed"]
+    val_size = cfg["data"]["val_size"]
+    num_labeled = cfg["data"]["num_labeled"]
+    num_classes = cfg["data"]["num_classes"]
+    batch_labeled = cfg["training"]["batch_labeled"]
+    batch_unlabeled = cfg["training"]["batch_unlabeled"]
+    num_workers = cfg["training"]["num_workers"]
+
+    base_train = datasets.CIFAR10(root=root, train=True, download=True)
+    labels = np.array(base_train.targets)
+    train_idx, val_idx = stratified_split_indices(labels, val_size, seed)
+    labeled_idx = make_labeled_indices(labels, train_idx, num_labeled, seed, num_classes)
+    unlabeled_idx = np.setdiff1d(train_idx, labeled_idx)
+    labeled_ds = datasets.CIFAR10(root, train=True, download=False, transform=train_transform())
+
+    if method == "fixmatch":
+        unlabeled_a_ds = datasets.CIFAR10(root, train=True, download=False, transform=train_transform())
+        unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=strong_transform())
+    elif method == "mixmatch":
+        unlabeled_a_ds = datasets.CIFAR10(root, train=True, download=False, transform=train_transform())
+        unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=train_transform())
+    else:
+        raise ValueError(f"Unknown SSL method: {method}")
+    
+    val_ds = datasets.CIFAR10(root=root, train=True, download=False, transform=val_transform())
+    test_ds = datasets.CIFAR10(root=root, train=False, download=True, transform=val_transform())
+
+    labeled_loader = DataLoader(Subset(labeled_ds, labeled_idx), batch_size=batch_labeled, shuffle=True, num_workers=num_workers, drop_last=True)
+    unlabeled_loader = DataLoader(PairedUnlabeledDataset(unlabeled_a_ds, unlabeled_b_ds, unlabeled_idx),
+                                    batch_size=batch_unlabeled, shuffle=True,
+                                    num_workers=num_workers, drop_last=True)
+    
+    val_loader = DataLoader(Subset(val_ds, val_idx), batch_size=batch_labeled, shuffle=False, num_workers=num_workers)
+    test_loader = DataLoader(test_ds, batch_size=batch_labeled, shuffle=False, num_workers=num_workers)
+
+    return labeled_loader, unlabeled_loader, val_loader, test_loader
