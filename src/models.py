@@ -25,4 +25,4 @@ def build_model(cfg):
     if cfg["model"]["name"] == "small_cnn":
         return SmallCNN(cfg["model"]["num_classes"])
     
-    raise ValueError(f"Unknown model: {cfg["model"]["name"]}")
+    raise ValueError(f"Unknown model: {cfg['model']['name']}")

@@ -1,0 +1,10 @@
+{
+  "method": "supervised",
+  "seed": 0,
+  "num_labeled": 1000,
+  "model": "small_cnn",
+  "best_val_acc": 0.4538,
+  "test_loss": 1.535299948310852,
+  "test_acc": 0.4534,
+  "time(s)": 76.0486421585083
+}
