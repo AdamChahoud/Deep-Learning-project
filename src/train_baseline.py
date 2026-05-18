@@ -1,6 +1,7 @@
 import argparse
 import json
 import time
+import copy
 from pathlib import Path
 
 import torch
@@ -64,10 +65,23 @@ def main():
     
     start = time.time()
     best_val_acc = 0.0
+    best_state = None
+    history = []
     for epoch in range(1, cfg["training"]["epochs"] + 1):
         train_loss, train_acc = train_one_epoch(model, train_loader, loss_fn, optimizer)
         val_loss, val_acc = evaluate(model, val_loader, loss_fn)
-        best_val_acc = max(best_val_acc, val_acc)
+        
+        if val_acc > best_val_acc:
+            best_val_acc = val_acc
+            best_state = copy.deepcopy(model.state_dict())
+
+        history.append({
+            "epoch": epoch,
+            "train_loss": train_loss,
+            "train_acc": train_acc,
+            "val_loss": val_loss,
+            "val_acc": val_acc
+        })
         
         print(f"epoch {epoch:02d}/{cfg['training']['epochs']} | "
               f"train loss {train_loss:.4f} | "
@@ -75,6 +89,9 @@ def main():
               f"val loss {val_loss:.4f} | "
               f"val acc {val_acc:.4f}")
         
+    if best_state is not None:
+        model.load_state_dict(best_state)
+
     test_loss, test_acc = evaluate(model, test_loader, loss_fn)
 
     results = {
@@ -85,7 +102,8 @@ def main():
         "best_val_acc": best_val_acc,
         "test_loss": test_loss,
         "test_acc": test_acc,
-        "time(s)": (time.time() - start)
+        "time(s)": (time.time() - start),
+        "history": history
     }
 
     out_dir = Path(cfg["output"]["dir"]) / "results"
