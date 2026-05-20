@@ -13,7 +13,15 @@ from data import build_ssl_loaders
 from models import build_model
 from seed import set_seed
 
-def train_one_epoch(model, labeled_loader, unlabeled_loader, loss_fn, optimizer, threshold, lambda_u):
+def next_batch(iterator, loader):
+    try:
+        batch = next(iterator)
+    except StopIteration:
+        iterator = iter(loader)
+        batch = next(iterator)
+    return batch, iterator
+
+def train_one_epoch(model, labeled_loader, unlabeled_loader, loss_fn, optimizer, threshold, lambda_u, steps_per_epoch):
     model.train()
 
     total_loss = 0.0
@@ -24,15 +32,13 @@ def train_one_epoch(model, labeled_loader, unlabeled_loader, loss_fn, optimizer,
     total_used = 0
     total_unlabeled = 0
 
+    labeled_iter = iter(labeled_loader)
     unlabeled_iter = iter(unlabeled_loader)
 
-    for x_l, y_l in labeled_loader:
-        try:
-            u_w, u_s = next(unlabeled_iter)
-        except StopIteration:
-            unlabeled_iter = iter(unlabeled_loader)
-            u_w, u_s = next(unlabeled_iter)
-
+    for _ in range(steps_per_epoch):
+        (x_l, y_l), labeled_iter = next_batch(labeled_iter, labeled_loader)
+        (u_w, u_s), unlabeled_iter = next_batch(unlabeled_iter, unlabeled_loader)
+        
         logits_l = model(x_l)
         sup_loss = loss_fn(logits_l, y_l).mean()
 
@@ -54,18 +60,18 @@ def train_one_epoch(model, labeled_loader, unlabeled_loader, loss_fn, optimizer,
         labeled_batch = y_l.size(0)
         unlabeled_batch = u_w.size(0)
 
-        total_loss += loss.item() * labeled_batch
-        total_sup_loss += sup_loss.item() * labeled_batch
-        total_unsup_loss += unsup_loss.item() * labeled_batch
+        total_loss += loss.item()
+        total_sup_loss += sup_loss.item()
+        total_unsup_loss += unsup_loss.item()
         total_correct += (logits_l.argmax(1) == y_l).sum().item()
         total_labeled += labeled_batch
         total_used += mask.sum().item()
         total_unlabeled += unlabeled_batch
 
     return {
-        "loss": total_loss / total_labeled,
-        "sup_loss": total_sup_loss / total_labeled,
-        "unsup_loss": total_unsup_loss / total_labeled,
+        "loss": total_loss / steps_per_epoch,
+        "sup_loss": total_sup_loss / steps_per_epoch,
+        "unsup_loss": total_unsup_loss / steps_per_epoch,
         "train_acc": total_correct / total_labeled,
         "used_unlabeled_frac": total_used / total_unlabeled,
     }
@@ -105,6 +111,7 @@ def main():
     optimizer = AdamW(model.parameters(), cfg["training"]["lr"], weight_decay=cfg["training"]["weight_decay"])
     threshold = cfg["fixmatch"]["threshold"]
     lambda_u = cfg["fixmatch"]["lambda_u"]
+    steps_per_epoch = cfg["training"]["steps_per_epoch"]
 
     best_val_acc = 0.0
     best_state = None
@@ -112,7 +119,7 @@ def main():
 
     start = time.time()
     for epoch in range(1, cfg["training"]["epochs"] + 1):
-        train_metrics = train_one_epoch(model, labeled_loader, unlabeled_loader, loss_fn, optimizer, threshold, lambda_u)
+        train_metrics = train_one_epoch(model, labeled_loader, unlabeled_loader, loss_fn, optimizer, threshold, lambda_u, steps_per_epoch)
         val_loss, val_acc = evaluate(model, val_loader, eval_loss_fn)
         if val_acc > best_val_acc:
             best_val_acc = val_acc
