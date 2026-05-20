@@ -156,6 +156,7 @@ def main():
         "model": cfg["model"]["name"],
         "threshold": threshold,
         "lambda_u": lambda_u,
+        "steps_per_epoch": cfg["training"]["steps_per_epoch"],
         "best_val_acc": best_val_acc,
         "test_loss": test_loss,
         "test_acc": test_acc,
@@ -165,8 +166,10 @@ def main():
         
     out_dir = Path(cfg["output"]["dir"]) / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
+    steps = cfg["training"]["steps_per_epoch"]
     out_path = out_dir / (f"fixmatch_{cfg['data']['num_labeled']}"
                           f"_t{str(threshold).replace('.', '')}"
+                          f"_steps{steps}"
                           f"_seed{cfg['seed']}.json")
 
     with open(out_path, "w") as f:

@@ -13,14 +13,33 @@ from data import build_loaders
 from models import build_model
 from seed import set_seed
 
-def train_one_epoch(model, loader, loss_fn, optimizer):
+def next_batch(iterator, loader):
+    try:
+        batch = next(iterator)
+    except StopIteration:
+        iterator = iter(loader)
+        batch = next(iterator)
+    return batch, iterator
+
+def train_one_epoch(model, loader, loss_fn, optimizer, steps_per_epoch=None):
     model.train()
 
     total_loss = 0.0
     total_correct = 0
     total_seen = 0
 
-    for x, y in loader:
+    if steps_per_epoch is None:
+        batches = loader
+    else:
+        iterator = iter(loader)
+        batches = range(steps_per_epoch)
+
+    for batch in batches:
+        if steps_per_epoch is None:
+            x, y = batch
+        else:
+            (x, y), iterator = next_batch(iterator, loader)
+
         optimizer.zero_grad()
         logits = model(x)
         loss = loss_fn(logits, y)
@@ -57,6 +76,7 @@ def main():
     args = parser.parse_args()
     cfg = load_configs(args.config)
     set_seed(cfg["seed"])
+    steps_per_epoch = cfg["training"].get("steps_per_epoch")
 
     train_loader, val_loader, test_loader = build_loaders(cfg)
     model = build_model(cfg)
@@ -68,7 +88,7 @@ def main():
     best_state = None
     history = []
     for epoch in range(1, cfg["training"]["epochs"] + 1):
-        train_loss, train_acc = train_one_epoch(model, train_loader, loss_fn, optimizer)
+        train_loss, train_acc = train_one_epoch(model, train_loader, loss_fn, optimizer, steps_per_epoch)
         val_loss, val_acc = evaluate(model, val_loader, loss_fn)
         
         if val_acc > best_val_acc:
@@ -99,6 +119,7 @@ def main():
         "seed": cfg["seed"],
         "num_labeled": cfg["data"]["num_labeled"],
         "model": cfg["model"]["name"],
+        "steps_per_epoch": cfg["training"].get("steps_per_epoch"),
         "best_val_acc": best_val_acc,
         "test_loss": test_loss,
         "test_acc": test_acc,
@@ -108,7 +129,8 @@ def main():
 
     out_dir = Path(cfg["output"]["dir"]) / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir/f"supervised_{cfg['data']['num_labeled']}_seed{cfg['seed']}.json"
+    steps = cfg["training"].get("steps_per_epoch", "full")
+    out_path = out_dir/f"supervised_{cfg['data']['num_labeled']}_steps{steps}_seed{cfg['seed']}.json"
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
 

@@ -3,10 +3,11 @@
   "seed": 0,
   "num_labeled": 250,
   "model": "small_cnn",
+  "steps_per_epoch": null,
   "best_val_acc": 0.3282,
   "test_loss": 1.8439035568237305,
   "test_acc": 0.337,
-  "time(s)": 62.32709813117981,
+  "time(s)": 57.289281129837036,
   "history": [
     {
       "epoch": 1,

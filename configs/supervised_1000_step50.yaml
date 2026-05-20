@@ -13,15 +13,10 @@ model:
 training:
   epochs: 20
   steps_per_epoch: 50
-  batch_labeled: 64
-  batch_unlabeled: 128
+  batch_size: 64
   lr: 0.001
   weight_decay: 0.0005
   num_workers: 0
-
-fixmatch:
-  threshold: 0.95
-  lambda_u: 1.0
 
 output:
   dir: outputs
