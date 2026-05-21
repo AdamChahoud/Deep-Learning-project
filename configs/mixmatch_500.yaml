@@ -1,0 +1,27 @@
+seed: 0
+
+data:
+  root: data
+  val_size: 5000
+  num_labeled: 500
+  num_classes: 10
+
+model:
+  name: small_cnn
+  num_classes: 10
+
+training:
+  epochs: 20
+  batch_labeled: 64
+  batch_unlabeled: 64
+  lr: 0.001
+  weight_decay: 0.0005
+  num_workers: 0
+
+fixmatch:
+  temperature: 0.5
+  alpha: 0.75
+  lambda_u: 75.0
+
+output:
+  dir: outputs

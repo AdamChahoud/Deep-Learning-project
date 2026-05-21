@@ -35,7 +35,7 @@ def find_result(results, method, labels, steps, threshold=None):
     
     return matches[0]
 
-def print_threshold_ablation(results):
+def print_fixmatch_threshold_data(results):
     labels = 1000
     steps = 100
     thresholds = [0.7, 0.8, 0.9, 0.95]
@@ -53,6 +53,27 @@ def print_threshold_ablation(results):
         final_used = r["history"][-1]["used_unlabeled_frac"]
         print(f"| {labels:<6} | {steps:<5} | {threshold:<9.2f} | {r['test_acc']:<8.4f} | {final_used:<21.4f} |")
 
+def print_mixmatch_label_data(results):
+    labels_list = [250, 500, 1000, 5000]
+    steps = "full"
+
+
+    print(f"\nMixMatch Data Scale Analysis (Steps/epoch: {steps})")
+    print("| Labels | Steps/epoch | Test acc | Time (s) | Best Val Acc |")
+    print("|-------:|------------:|---------:|---------:|-------------:|")
+
+    for labels in labels_list:
+        r = find_result(results, "mixmatch", labels, steps, threshold=None)
+        if r is None:
+            continue
+
+        test_acc = r["test_acc"]
+        val_acc = r.get("best_val_acc", 0.0)
+        run_time = r.get("time(s)", 0.0)
+
+        # Print layout with spacing padding matching the column headers
+        print(f"| {labels:<6} | {str(steps):<11} | {test_acc:<8.4f} | {run_time:<8.1f} | {val_acc:<12.4f} |")
+              
 def print_comparison(results):
     labels_list = [250, 1000, 5000]
     steps_list = ["full", 50, 100, 400]
@@ -65,7 +86,7 @@ def print_comparison(results):
         for steps in steps_list:
             sup = find_result(results, "supervised",labels,steps)
             fix = find_result(results, "fixmatch",labels,steps, threshold=0.8)
-            mix = find_result(results, "mixmatch",labels,steps, threshold=0.8)
+            mix = find_result(results, "mixmatch",labels,steps, threshold=None)
 
             if sup is None and fix is None and mix is None:
                 continue
@@ -94,7 +115,8 @@ def print_comparison(results):
 def main():
     results = load_all_results()
     print_comparison(results)
-    print_threshold_ablation(results)
+    print_fixmatch_threshold_data(results)
+    print_mixmatch_label_data(results)
 
 
 if __name__ == "__main__":
