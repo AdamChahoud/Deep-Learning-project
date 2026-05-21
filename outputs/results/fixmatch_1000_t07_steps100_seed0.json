@@ -1,0 +1,215 @@
+{
+  "method": "fixmatch",
+  "seed": 0,
+  "num_labeled": 1000,
+  "model": "small_cnn",
+  "threshold": 0.7,
+  "lambda_u": 1.0,
+  "steps_per_epoch": 100,
+  "best_val_acc": 0.5514,
+  "test_loss": 1.4266483310699463,
+  "test_acc": 0.5586,
+  "time(s)": 751.7289931774139,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 2.077511336803436,
+      "sup_loss": 2.068900099992752,
+      "unsup_loss": 0.008611237490549683,
+      "train_acc": 0.23140625,
+      "used_unlabeled_frac": 0.0053125,
+      "val_loss": 1.8071493104934693,
+      "val_acc": 0.3344
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.7767717027664185,
+      "sup_loss": 1.7358551478385926,
+      "unsup_loss": 0.04091655347729102,
+      "train_acc": 0.36515625,
+      "used_unlabeled_frac": 0.0334375,
+      "val_loss": 1.6440491067886354,
+      "val_acc": 0.4118
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.6665122139453887,
+      "sup_loss": 1.5939749085903168,
+      "unsup_loss": 0.07253730559721588,
+      "train_acc": 0.415,
+      "used_unlabeled_frac": 0.06046875,
+      "val_loss": 1.5618357753753662,
+      "val_acc": 0.4424
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.6009706151485443,
+      "sup_loss": 1.502016032934189,
+      "unsup_loss": 0.09895458192564548,
+      "train_acc": 0.4465625,
+      "used_unlabeled_frac": 0.08375,
+      "val_loss": 1.5217530939102173,
+      "val_acc": 0.4548
+    },
+    {
+      "epoch": 5,
+      "train_loss": 1.524533222913742,
+      "sup_loss": 1.3939777755737304,
+      "unsup_loss": 0.13055544622242451,
+      "train_acc": 0.4853125,
+      "used_unlabeled_frac": 0.11421875,
+      "val_loss": 1.4614732666015624,
+      "val_acc": 0.4764
+    },
+    {
+      "epoch": 6,
+      "train_loss": 1.48983624458313,
+      "sup_loss": 1.320885543823242,
+      "unsup_loss": 0.16895070493221284,
+      "train_acc": 0.50859375,
+      "used_unlabeled_frac": 0.15203125,
+      "val_loss": 1.4397278268814087,
+      "val_acc": 0.4938
+    },
+    {
+      "epoch": 7,
+      "train_loss": 1.4454204487800597,
+      "sup_loss": 1.2464010006189346,
+      "unsup_loss": 0.19901944875717162,
+      "train_acc": 0.5384375,
+      "used_unlabeled_frac": 0.178984375,
+      "val_loss": 1.4123027973175049,
+      "val_acc": 0.4982
+    },
+    {
+      "epoch": 8,
+      "train_loss": 1.4080940526723862,
+      "sup_loss": 1.1709924632310866,
+      "unsup_loss": 0.2371015864610672,
+      "train_acc": 0.56296875,
+      "used_unlabeled_frac": 0.212109375,
+      "val_loss": 1.4208338786125183,
+      "val_acc": 0.509
+    },
+    {
+      "epoch": 9,
+      "train_loss": 1.3868437957763673,
+      "sup_loss": 1.1355317455530167,
+      "unsup_loss": 0.2513120435923338,
+      "train_acc": 0.57578125,
+      "used_unlabeled_frac": 0.23265625,
+      "val_loss": 1.4318131633758544,
+      "val_acc": 0.5136
+    },
+    {
+      "epoch": 10,
+      "train_loss": 1.3680199909210204,
+      "sup_loss": 1.0970943462848664,
+      "unsup_loss": 0.27092564463615415,
+      "train_acc": 0.59015625,
+      "used_unlabeled_frac": 0.24796875,
+      "val_loss": 1.419073209285736,
+      "val_acc": 0.5134
+    },
+    {
+      "epoch": 11,
+      "train_loss": 1.3463323664665223,
+      "sup_loss": 1.0522754061222077,
+      "unsup_loss": 0.2940569594502449,
+      "train_acc": 0.61671875,
+      "used_unlabeled_frac": 0.2715625,
+      "val_loss": 1.4122630772590636,
+      "val_acc": 0.5268
+    },
+    {
+      "epoch": 12,
+      "train_loss": 1.305003513097763,
+      "sup_loss": 0.9998183429241181,
+      "unsup_loss": 0.305185167491436,
+      "train_acc": 0.631875,
+      "used_unlabeled_frac": 0.285234375,
+      "val_loss": 1.4539131860733032,
+      "val_acc": 0.5196
+    },
+    {
+      "epoch": 13,
+      "train_loss": 1.3043832552433015,
+      "sup_loss": 0.9715258234739304,
+      "unsup_loss": 0.3328574324399233,
+      "train_acc": 0.64328125,
+      "used_unlabeled_frac": 0.31390625,
+      "val_loss": 1.438269021987915,
+      "val_acc": 0.5226
+    },
+    {
+      "epoch": 14,
+      "train_loss": 1.2866689276695251,
+      "sup_loss": 0.9269595420360566,
+      "unsup_loss": 0.35970939114689826,
+      "train_acc": 0.65890625,
+      "used_unlabeled_frac": 0.3196875,
+      "val_loss": 1.421359265899658,
+      "val_acc": 0.5268
+    },
+    {
+      "epoch": 15,
+      "train_loss": 1.2677312833070755,
+      "sup_loss": 0.9083748692274094,
+      "unsup_loss": 0.359356419891119,
+      "train_acc": 0.66515625,
+      "used_unlabeled_frac": 0.32015625,
+      "val_loss": 1.4595619998931886,
+      "val_acc": 0.5332
+    },
+    {
+      "epoch": 16,
+      "train_loss": 1.2552331757545472,
+      "sup_loss": 0.8734481054544448,
+      "unsup_loss": 0.381785072684288,
+      "train_acc": 0.6803125,
+      "used_unlabeled_frac": 0.3415625,
+      "val_loss": 1.4526299282073976,
+      "val_acc": 0.536
+    },
+    {
+      "epoch": 17,
+      "train_loss": 1.2451144874095916,
+      "sup_loss": 0.8542493158578872,
+      "unsup_loss": 0.3908651760220528,
+      "train_acc": 0.6828125,
+      "used_unlabeled_frac": 0.358203125,
+      "val_loss": 1.4778886142730714,
+      "val_acc": 0.5344
+    },
+    {
+      "epoch": 18,
+      "train_loss": 1.2227160221338271,
+      "sup_loss": 0.8255766481161118,
+      "unsup_loss": 0.3971393729746342,
+      "train_acc": 0.69359375,
+      "used_unlabeled_frac": 0.353125,
+      "val_loss": 1.4619585054397584,
+      "val_acc": 0.5464
+    },
+    {
+      "epoch": 19,
+      "train_loss": 1.2017241567373276,
+      "sup_loss": 0.785204735994339,
+      "unsup_loss": 0.41651942163705824,
+      "train_acc": 0.71421875,
+      "used_unlabeled_frac": 0.380703125,
+      "val_loss": 1.498074148273468,
+      "val_acc": 0.5462
+    },
+    {
+      "epoch": 20,
+      "train_loss": 1.1956766748428345,
+      "sup_loss": 0.7727261736989022,
+      "unsup_loss": 0.42295051127672195,
+      "train_acc": 0.71234375,
+      "used_unlabeled_frac": 0.383125,
+      "val_loss": 1.4484468683242797,
+      "val_acc": 0.5514
+    }
+  ]
+}
