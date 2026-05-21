@@ -53,19 +53,6 @@ def print_threshold_ablation(results):
         final_used = r["history"][-1]["used_unlabeled_frac"]
         print(f"| {labels:<6} | {steps:<5} | {threshold:<9.2f} | {r['test_acc']:<8.4f} | {final_used:<21.4f} |")
 
-    # MIXMATCH
-    print("\n\nMixMatch threshold ablation")
-    print("| Labels | Steps | Threshold | Test acc | Final unlabeled usage |")
-    print("|-------:|------:|----------:|---------:|----------------------:|")
-
-    for threshold in thresholds:
-        r = find_result(results, "mixmatch", labels, steps, threshold=threshold)
-        if r is None:
-            continue
-
-        final_used = r["history"][-1]["used_unlabeled_frac"]
-        print(f"| {labels:<6} | {steps:<5} | {threshold:<9.2f} | {r['test_acc']:<8.4f} | {final_used:<21.4f} |")
-
 def print_comparison(results):
     labels_list = [250, 1000, 5000]
     steps_list = ["full", 50, 100, 400]
