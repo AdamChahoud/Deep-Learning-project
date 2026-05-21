@@ -41,7 +41,7 @@ def print_supervised_fixmatch(results):
 
     print("\nSupervised vs FixMatch")
     print("| Labels | Steps/epoch | Supervised acc | FixMatch acc | Difference |")
-    print("|---:|---:|---:|---:|---:|")
+    print("|----:|-----:|-------:|--:|--:|")
 
     for labels in labels_list:
         for steps in steps_list:
