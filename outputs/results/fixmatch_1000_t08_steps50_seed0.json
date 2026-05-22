@@ -1,5 +1,6 @@
 {
   "method": "fixmatch",
+  "augment_strategy": "RandAugment",
   "seed": 0,
   "num_labeled": 1000,
   "model": "small_cnn",

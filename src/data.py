@@ -29,14 +29,48 @@ def val_transform():
         transforms.ToTensor(),
         transforms.Normalize(CIFAR10_MEAN, CIFAR10_STD),
     ])
+def strong_autoaugment_transform():
+    return transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.AutoAugment(policy=transforms.AutoAugmentPolicy.CIFAR10),
+        transforms.ToTensor(),
+        transforms.Normalize(CIFAR10_MEAN, CIFAR10_STD)
+    ])
 
-def strong_transform():
+def strong_randaugment_transform():
     return transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
         transforms.RandAugment(num_ops=2, magnitude=9),
         transforms.ToTensor(),
         transforms.Normalize(CIFAR10_MEAN, CIFAR10_STD)
+    ])
+
+def strong_randaugmentcutout_transform():
+    return transforms.Compose([
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandAugment(num_ops=2, magnitude=9),
+            transforms.ToTensor(),
+            transforms.Normalize(CIFAR10_MEAN, CIFAR10_STD),
+            transforms.RandomErasing(p=0.5, value=0)
+        ])
+def strong_trivial_transform():
+    return transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.TrivialAugmentWide(), 
+        transforms.ToTensor(),
+        transforms.Normalize(CIFAR10_MEAN, CIFAR10_STD),
+    ])
+def strong_augmix_transform():
+    return transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.AugMix(severity=3, mixture_width=3, alpha=1.0), 
+        transforms.ToTensor(),
+        transforms.Normalize(CIFAR10_MEAN, CIFAR10_STD),
     ])
 
 def stratified_split_indices(labels, test_size, seed):
@@ -113,7 +147,7 @@ def build_loaders(cfg):
 
     return train_loader, val_loader, test_loader
 
-def build_ssl_loaders(cfg, method):
+def build_ssl_loaders(cfg, method,augmentStrategy=None):
     root = cfg["data"]["root"]
     seed = cfg["seed"]
     val_size = cfg["data"]["val_size"]
@@ -132,7 +166,20 @@ def build_ssl_loaders(cfg, method):
 
     if method == "fixmatch":
         unlabeled_a_ds = datasets.CIFAR10(root, train=True, download=False, transform=train_transform())
-        unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=strong_transform())
+        match augmentStrategy:
+            case "AutoAugment":
+                unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=strong_autoaugment_transform())
+            case "RandAugment":
+                unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=strong_randaugment_transform())
+            case "Cutout":
+                unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=strong_randaugmentcutout_transform())
+            case "Trivial":
+                unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=strong_trivial_transform())
+            case "AugMix":
+                unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=strong_augmix_transform())
+            case _: # Default To RandAugment
+                print("Augment Strategy Not Stated In Config!")
+                unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=strong_randaugment_transform())
     elif method == "mixmatch":
         unlabeled_a_ds = datasets.CIFAR10(root, train=True, download=False, transform=train_transform())
         unlabeled_b_ds = datasets.CIFAR10(root, train=True, download=False, transform=train_transform())

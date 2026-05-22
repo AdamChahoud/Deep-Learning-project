@@ -103,8 +103,9 @@ def main():
     args = parser.parse_args()
     cfg = load_configs(args.config)
     set_seed(cfg["seed"])
+    augmentStrat = cfg.get("data").get("augment","RandAugment")
 
-    labeled_loader, unlabeled_loader, val_loader, test_loader = build_ssl_loaders(cfg, method="fixmatch")
+    labeled_loader, unlabeled_loader, val_loader, test_loader = build_ssl_loaders(cfg, method="fixmatch", augmentStrategy=augmentStrat)
     model = build_model(cfg)
     loss_fn = nn.CrossEntropyLoss(reduction="none")
     eval_loss_fn = nn.CrossEntropyLoss()
@@ -151,6 +152,7 @@ def main():
 
     results = {
         "method": "fixmatch",
+        "augment_strategy": augmentStrat,
         "seed": cfg["seed"],
         "num_labeled": cfg["data"]["num_labeled"],
         "model": cfg["model"]["name"],
@@ -170,6 +172,7 @@ def main():
     out_path = out_dir / (f"fixmatch_{cfg['data']['num_labeled']}"
                           f"_t{str(threshold).replace('.', '')}"
                           f"_steps{steps}"
+                          f"_{augmentStrat}"
                           f"_seed{cfg['seed']}.json")
 
     with open(out_path, "w") as f:
