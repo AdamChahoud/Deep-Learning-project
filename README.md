@@ -20,4 +20,4 @@ MixMatch was limited by an unsupervised-loss ramp-up that did not complete withi
 
 ## Report
 
-[Read the full report](./report.pdf)
+[Read the full report](./Report.pdf)
